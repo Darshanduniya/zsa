@@ -1,0 +1,19 @@
+Subject: Request to Reconfigure PostgreSQL Tablespace After NAS Migration
+
+Hi Team,
+
+During our previous activity, we had created a tablespace for PostgreSQL and pointed it to /mpd/staging instead of the default /var directory.
+
+However, after the recent NAS share migration, the configuration has reverted. Currently, the PostgreSQL data directory is pointing back to /var/lib/pgsql/14/data/.
+
+Could you please reconfigure the tablespace to point to /mpd/staging again for both the servers mentioned below?
+
+Reference: SR527858
+
+Servers:
+
+lnx5504.ch3.dev.i.com
+
+lnx5534.ch3.prod.i.com
+
+Thank you for your support.
