@@ -1,0 +1,9 @@
+Hi Veeru,
+
+The SPE_MSO task initially failed because there was no corresponding model entry in the required table, causing the task to be skipped.
+
+Additionally, in the tec_cet schema, the expected key was not loaded. The API was searching for the penpoint_key in the positem table, but it could not find the entry—likely because the key falls behind pp_month < 600.
+
+I checked with Radhika, and she confirmed that the entries had been reverted earlier. She has now reinserted them and re-triggered the DAG. The process has completed successfully.
+
+Please let me know if you need any further details
