@@ -1,0 +1,41 @@
+# Load Spark SQL table
+table_name = "your_table_name"
+df = spark.table(table_name)
+df.printSchema()  # Print Spark schema for inspection
+schema = df.schema
+
+# Define mapping from Spark types to MonetDB types
+from pyspark.sql.types import *
+
+def spark_to_monetdb_type(spark_type):
+    if isinstance(spark_type, StringType):
+        return "VARCHAR"
+    elif isinstance(spark_type, IntegerType):
+        return "INT"
+    elif isinstance(spark_type, LongType):
+        return "BIGINT"
+    elif isinstance(spark_type, FloatType):
+        return "FLOAT"
+    elif isinstance(spark_type, DoubleType):
+        return "DOUBLE"
+    elif isinstance(spark_type, BooleanType):
+        return "BOOLEAN"
+    elif isinstance(spark_type, TimestampType):
+        return "TIMESTAMP"
+    elif isinstance(spark_type, DateType):
+        return "DATE"
+    elif isinstance(spark_type, DecimalType):
+        return f"DECIMAL({spark_type.precision}, {spark_type.scale})"
+    elif isinstance(spark_type, BinaryType):
+        return "BLOB"
+    elif isinstance(spark_type, ByteType):
+        return "TINYINT"
+    else:
+        return "VARCHAR"  # Fallback for unrecognized types
+
+# Generate MonetDB CREATE TABLE statement
+columns_def = ",\n  ".join([f"{field.name} {spark_to_monetdb_type(field.dataType)}" for field in schema])
+create_stmt = f"CREATE TABLE {table_name} (\n  {columns_def}\n);"
+
+# Output final DDL statement
+print(create_stmt)
