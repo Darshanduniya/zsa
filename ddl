@@ -1,16 +1,20 @@
+from pyspark.sql import SparkSession
+from pyspark.sql.types import *
 import csv
 
-# Read table names from CSV file (one table per line)
-csv_path = "/path/to/tables.csv"
+# Step 1: Start Spark session
+spark = SparkSession.builder \
+    .appName("SparkToMonetDBSchema") \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+# Step 2: Read table names from CSV file (one table name per line)
+csv_path = "/path/to/tables.csv"  # ← Replace with your actual path
 with open(csv_path, "r") as f:
     reader = csv.reader(f)
     table_names = [row[0].strip() for row in reader if row]
 
-ddl_statements = []
-
-# Type mapper from Spark to MonetDB
-from pyspark.sql.types import *
-
+# Step 3: Spark-to-MonetDB type conversion
 def spark_to_monetdb_type(spark_type):
     if isinstance(spark_type, StringType):
         return "VARCHAR"
@@ -37,21 +41,25 @@ def spark_to_monetdb_type(spark_type):
     else:
         return "VARCHAR"  # Fallback
 
-# Process each table
+# Step 4: Generate CREATE TABLE statements
+ddl_statements = []
+
 for table_name in table_names:
     try:
         df = spark.table(table_name)
         schema = df.schema
-        columns_def = ",\n  ".join([f"{field.name} {spark_to_monetdb_type(field.dataType)}" for field in schema])
+        columns_def = ",\n  ".join([
+            f"{field.name} {spark_to_monetdb_type(field.dataType)}" for field in schema
+        ])
         create_stmt = f"CREATE TABLE {table_name} (\n  {columns_def}\n);"
         ddl_statements.append(create_stmt)
         print(f"\n-- DDL for {table_name} --\n{create_stmt}")
     except Exception as e:
-        print(f"⚠️ Failed to process {table_name}: {e}")
+        print(f"⚠️ Error processing table '{table_name}': {e}")
 
-# Optional: Write to file
-output_file = "/tmp/monetdb_create_statements.sql"
-with open(output_file, "w") as f:
+# Step 5: Write all DDLs to a .sql file
+output_path = "/tmp/monetdb_create_statements.sql"  # Change path if needed
+with open(output_path, "w") as f:
     f.write("\n\n".join(ddl_statements))
 
-print(f"\n✅ All CREATE TABLE statements written to: {output_file}")
+print(f"\n✅ DDLs written to: {output_path}")
