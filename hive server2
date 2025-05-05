@@ -1,0 +1,25 @@
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.providers.apache.hive.hooks.hive import HiveServer2Hook
+from datetime import datetime
+
+def fetch_hive_tables():
+    hook = HiveServer2Hook(hiveserver2_conn_id='hive_conn_id')
+    conn = hook.get_conn()
+    cursor = conn.cursor()
+
+    # Execute HiveQL
+    cursor.execute("SHOW TABLES IN tec_cet_schema LIKE 'hlx_dim_%'")
+    results = cursor.fetchall()  # Returns list of tuples like [(db, table), ...]
+
+    # Filter out tables ending with '_bkp'
+    filtered = [row[1] for row in results if not row[1].endswith('_bkp')]
+
+    print("Filtered tables:", filtered)
+    return filtered  # Stored in XCom for downstream tasks
+
+with DAG("hive_fetch_dag", start_date=datetime(2024, 1, 1), schedule_interval=None, catchup=False) as dag:
+    task = PythonOperator(
+        task_id="get_filtered_tables",
+        python_callable=fetch_hive_tables
+    )
