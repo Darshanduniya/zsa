@@ -1,0 +1,12 @@
+from pyspark.sql import SparkSession
+
+# Step 1: Initialize SparkSession
+spark = SparkSession.builder \
+    .appName("Write CSV Without Header") \
+    .getOrCreate()
+
+# Step 2: Read the data (example from CSV with header)
+df = spark.read.csv("path/to/input.csv", header=True, inferSchema=True)
+
+# Step 3: Write to CSV WITHOUT header
+df.write.csv("path/to/output_folder", header=False, mode="overwrite")
