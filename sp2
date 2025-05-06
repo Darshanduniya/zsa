@@ -1,0 +1,15 @@
+/usr/odp/3.2.3.2-3/spark3/bin/spark-sql \
+--conf spark.driver.extraJavaOptions="-Dlog4j.configuration=/etc/spark3/conf/log4j.properties" \
+--conf spark.executor.extraJavaOptions="-Dlog4j.configuration=/etc/spark3/conf/log4j.properties -XX:+UseG1GC -XX:+UseStringDeduplication" \
+--conf spark.driver.maxResultSize=4g \
+--conf spark.yarn.populateHadoopClasspath=true \
+--conf spark.memory.fraction=0.5 \
+--total-executor-cores 92 \
+--num-executors 46 \
+--executor-memory 25G \
+--executor-cores 2 \
+--driver-memory 25G \
+--driver-cores 5 \
+--conf spark.sql.shuffle.partitions=100 \
+-e "SELECT * FROM dev_tec_tot_hlx_dim_item_positems_bkp" \
+> /npd/staging/LEAPFROG_EXPORT/TEC_POS_TOT/MERGED_TABLES/hlx_dim_item_positems_bkp.csv
