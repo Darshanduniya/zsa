@@ -1,0 +1,11 @@
+spark-sql \
+  --conf spark.driver.maxResultSize=2g \
+  --conf spark.executor.memoryOverhead=4g \
+  --conf spark.yarn.executor.memoryOverhead=4g \
+  --conf spark.sql.adaptive.enabled=true \
+  --conf spark.sql.shuffle.partitions=200 \
+  --num-executors 36 \
+  --executor-memory 15g \
+  --executor-cores 3 \
+  --driver-memory 10g \
+  -e "INSERT OVERWRITE DIRECTORY '/npd/output/hlx_dim_item_positems_bkp' USING PARQUET SELECT * FROM dev_tec_tot.hlx_dim_item_positems_bkp"
