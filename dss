@@ -1,0 +1,25 @@
+WITH distinct_keys AS (
+    SELECT DISTINCT 
+        brand_ct_key,
+        item_ct_key,
+        brand_nc_key,
+        item_nc_key,
+        brand_reg_key,
+        item_reg_key
+    FROM stage_final
+),
+numbered_keys AS (
+    SELECT 
+        ROW_NUMBER() OVER (
+            ORDER BY brand_ct_key, item_ct_key, brand_nc_key, item_nc_key, brand_reg_key, item_reg_key
+        ) AS unique_key_id,
+        brand_ct_key,
+        item_ct_key,
+        brand_nc_key,
+        item_nc_key,
+        brand_reg_key,
+        item_reg_key
+    FROM distinct_keys
+)
+
+SELECT * FROM numbered_keys;
