@@ -1,0 +1,43 @@
+WITH distinct_keys AS (
+    SELECT DISTINCT 
+        brand_ct_key,
+        item_ct_key,
+        brand_nc_key,
+        item_nc_key,
+        brand_reg_key,
+        item_reg_key
+    FROM stage_final
+),
+numbered_keys AS (
+    SELECT 
+        ROW_NUMBER() OVER (
+            ORDER BY brand_ct_key, item_ct_key, brand_nc_key, item_nc_key, brand_reg_key, item_reg_key
+        ) AS unique_key_id,
+        brand_ct_key,
+        item_ct_key,
+        brand_nc_key,
+        item_nc_key,
+        brand_reg_key,
+        item_reg_key
+    FROM distinct_keys
+)
+SELECT 
+    sf.outlet_key,
+    sf.item_dim_key,
+    sf.channeltype_key,
+    sf.pp_month,
+    sf.brand_ct_key,
+    sf.item_ct_key,
+    sf.brand_nc_key,
+    sf.item_nc_key,
+    sf.brand_reg_key,
+    sf.item_reg_key,
+    nk.unique_key_id
+FROM stage_final sf
+JOIN numbered_keys nk
+  ON sf.brand_ct_key = nk.brand_ct_key
+ AND sf.item_ct_key = nk.item_ct_key
+ AND sf.brand_nc_key = nk.brand_nc_key
+ AND sf.item_nc_key = nk.item_nc_key
+ AND sf.brand_reg_key = nk.brand_reg_key
+ AND sf.item_reg_key = nk.item_reg_key;
