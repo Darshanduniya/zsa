@@ -1,0 +1,8 @@
+df.coalesce(1) \
+  .write \
+  .option("header", True) \
+  .option("delimiter", "|") \
+  .option("quote", "\"") \
+  .option("escape", "\"") \
+  .mode("overwrite") \
+  .csv("hdfs://tkdp/warehouse/tablespace/external/hive/dev_tec_tot_csv/positem_csv_pipe")
